@@ -1,6 +1,6 @@
 package orm.reflect.orm;
 
-import orm.reflect.ContentValues;
+import andriod.content.ContentValues;
 
 /**
  * @auther zhenhuachen

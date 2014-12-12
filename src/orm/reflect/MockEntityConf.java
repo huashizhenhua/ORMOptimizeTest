@@ -2,6 +2,8 @@ package orm.reflect;
 
 import java.lang.reflect.Field;
 
+import andriod.content.ContentValues;
+
 import orm.reflect.orm.BaseCursor;
 import orm.reflect.orm.BaseEntity;
 import orm.reflect.orm.BaseEntityConf;

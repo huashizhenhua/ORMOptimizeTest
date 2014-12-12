@@ -1,9 +1,11 @@
-package orm.reflect;
+package andriod.content;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import orm.reflect.Log;
 
 /**
  * This class is used to store a set of values that the {@link ContentResolver}
