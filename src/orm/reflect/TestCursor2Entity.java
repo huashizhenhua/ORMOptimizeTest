@@ -80,29 +80,21 @@ public class TestCursor2Entity {
 		for (int i = 0, size = columnNames.length; i < size; i++) {
 			String name = columnNames[i];
 			int nameHashCode = name.hashCode();
-			switch (nameHashCode) {
-			case MockEntityConf.INT_VALUE_HASH :
-				break;
-
-			default:
-				break;
+			if (MockEntityConf.INT_VALUE_HASH == nameHashCode) {
+				tf.intValue = cursor.getIntValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf.STRING_VALUE_HASH == nameHashCode) {
+				tf.stringValue = cursor.getStringValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf.LONG_VALUE_HASH == nameHashCode) {
+				tf.longValue = cursor.getLongValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf.FLOAT_VALUE_HASH == nameHashCode) {
+				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf.BOOLEAN_VALUE_HASH == nameHashCode) {
+				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf. == nameHashCode) {
+				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
+			} else if (MockEntityConf.BOOLEAN_VALUE_HASH == nameHashCode) {
+				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
 			}
-			
-//			if (MockEntityConf.INT_VALUE_HASH == nameHashCode) {
-//				tf.intValue = cursor.getIntValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf.STRING_VALUE_HASH == nameHashCode) {
-//				tf.stringValue = cursor.getStringValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf.LONG_VALUE_HASH == nameHashCode) {
-//				tf.longValue = cursor.getLongValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf.FLOAT_VALUE_HASH == nameHashCode) {
-//				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf.BOOLEAN_VALUE_HASH == nameHashCode) {
-//				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf. == nameHashCode) {
-//				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
-//			} else if (MockEntityConf.BOOLEAN_VALUE_HASH == nameHashCode) {
-//				tf.booleanValue = cursor.getBooleanValue(cursor.getColumnIndex(name));
-//			}
 		}
 	}
 	
