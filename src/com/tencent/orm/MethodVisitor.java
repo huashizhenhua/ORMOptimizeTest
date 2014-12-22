@@ -50,8 +50,14 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
 	}
 	
+	/**
+	 *  是否import了{@link #IMPORT_ENTITY}
+	 */
 	public boolean mIsEntityImport = false;
 	
+	/**
+	 *  是否继承自Entity
+	 */
 	public boolean mIsEntityExtended = false;
 	
 	public static final String ENTITY = "Entity";
@@ -90,6 +96,12 @@ public class MethodVisitor extends VoidVisitorAdapter {
 		super.visit(n, arg);
 		
 		ormTable.tableName = n.getName();
+		
+		List<AnnotationExpr> exprList = n.getAnnotations();
+		for() {
+			
+		}
+		
 		
 		List<ClassOrInterfaceType>  extendsList = n.getExtends();
 		for(ClassOrInterfaceType type : extendsList) {
@@ -130,7 +142,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
 		return a;
 	}
 	
-	public int mCount = 0;
+	
+	private int mColumnOrdinal = 0;
+	
+	private int mNotColumnOridnal = 0;
 
 	@Override
 	public void visit(FieldDeclaration n, Object arg) {
@@ -158,14 +173,15 @@ public class MethodVisitor extends VoidVisitorAdapter {
 				
 				prop.columnName = id.getName();
 				prop.type = id.getClass();
-				prop.ordinal = mCount;
-				mCount++;
 				
-				if (true != "notColumn".equals(annotation)) {
+				// notColumn
+				if ("notColumn".equals(annotation)) {
+					prop.ordinal = mNotColumnOridnal;
+					mNotColumnOridnal++;
 				}
-				
 				else {
-					
+					prop.ordinal = mColumnOrdinal;
+					mColumnOrdinal++;
 				}
 			}
 			
@@ -173,6 +189,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
 		}
 //		System.out.println("-----FieldDeclaration-----end");
 	}
+	
 	// >-----------------------------------------------------------------
 
 	// <-----------------------------------------------------------------
