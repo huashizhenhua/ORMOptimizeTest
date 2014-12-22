@@ -14,13 +14,29 @@ public class OrmTable {
 		public String name;
 		public boolean primaryKey;
 		public String columnName;
+		public String defaultValue;
 	}
 	
-	
+	/**
+	 * 表名
+	 */
 	public String tableName;
 	
-	public ArrayList<Properties> properties;
+	/**
+	 * 冲突策略
+	 */
+	public String conflictClause;
 	
-	public ArrayList<Properties> pkColumns;
+	/**
+	 * 唯一键
+	 */
+	public ArrayList<String> pkColumnNames = new ArrayList<String>(); 
+
+	public ArrayList<Properties> pkColumns = new ArrayList<Properties>();
+	
+	public ArrayList<Properties> columns = new ArrayList<Properties>();
+	
+	public ArrayList<Properties> notColumns = new ArrayList<Properties>();
+	
 
 }

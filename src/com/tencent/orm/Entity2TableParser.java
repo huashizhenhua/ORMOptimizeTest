@@ -14,7 +14,9 @@ import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.body.VariableDeclaratorId;
 import japa.parser.ast.expr.AnnotationExpr;
 import japa.parser.ast.expr.ClassExpr;
+import japa.parser.ast.expr.MemberValuePair;
 import japa.parser.ast.expr.NameExpr;
+import japa.parser.ast.expr.NormalAnnotationExpr;
 import japa.parser.ast.type.ClassOrInterfaceType;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
@@ -22,32 +24,41 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-public class MethodVisitor extends VoidVisitorAdapter {
+public class Entity2TableParser extends VoidVisitorAdapter {
 	
-	public static final String TAG = MethodVisitor.class.getSimpleName();
+	public static final String TAG = Entity2TableParser.class.getSimpleName();
 	
-	public OrmTable ormTable = new OrmTable();
+	public OrmTable mOrmTable = new OrmTable();
 	
-	public static void main(String[] args) {
-		String entityFilePath = "G:/qqilte/QQLite/src/com/tencent/mobileqq/data/HotChatInfo.java";
-		
-//		System.out.println("boolean = " + entityFilePath.contains("HotChatInfo"));
-		
+	private String mPath;
+	
+	public Entity2TableParser(String path) {
+		mPath = path;
+	}
+	
+	public void parse() {
+//		String entityFilePath = "G:/qqilte/QQLite/src/com/tencent/mobileqq/data/MessageRecord.java";
 		FileInputStream in = null;
 		CompilationUnit cu = null;
         try {
-        	in = new FileInputStream(entityFilePath);
+        	in = new FileInputStream(mPath);
             // parse the file
             cu = JavaParser.parse(in);
             // prints the resulting compilation unit to default system output
             // visit and print the methods names
-            new MethodVisitor().visit(cu, null);
+            this.visit(cu, null);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
+	}
+	
+	public static void main(String[] args) {
+		String entityFilePath = "G:/qqilte/QQLite/src/com/tencent/mobileqq/data/MessageRecord.java";
+		Entity2TableParser parser = new Entity2TableParser(entityFilePath);
+		parser.parse();
+		
 	}
 	
 	/**
@@ -88,20 +99,49 @@ public class MethodVisitor extends VoidVisitorAdapter {
 	@Override
 	public void visit(ClassExpr n, Object arg) {
 		super.visit(n, arg);
-		
 	}
+	
+	public static final String UNIQUE_CONSTANT = "uniqueConstraints";
+	
+	public static final String UNIQUE_CONSTANT_KEY_COLUMN_NAMES = "columnsNames";
 
+	public static final String UNIQUE_CONSTANT_KEY_CLAUSE = "clause";
+	
+	
 	@Override
 	public void visit(ClassOrInterfaceDeclaration n, Object arg) {
 		super.visit(n, arg);
 		
-		ormTable.tableName = n.getName();
+		mOrmTable.tableName = n.getName();
 		
 		List<AnnotationExpr> exprList = n.getAnnotations();
-		for() {
-			
+		if (exprList != null) {
+			for(AnnotationExpr expr : exprList) {
+				ORMGenerator.debug(TAG, "ClassOrInterfaceDeclaration annotation = " + expr.getName());
+				if (UNIQUE_CONSTANT.equals(expr.getName().toString())) {
+					NormalAnnotationExpr e = (NormalAnnotationExpr)expr;
+					
+					List<MemberValuePair> mbVals = e.getPairs();
+					for (MemberValuePair vp :  mbVals) {
+						ORMGenerator.debug(TAG, "ClassOrInterfaceDeclaration vp.name = " + vp.getName() + ", vp.expression = " + vp.getValue());
+						String name = vp.getName();
+						
+						if (UNIQUE_CONSTANT_KEY_COLUMN_NAMES.equals(name)) {
+							String uniqueColumnsRaw = vp.getValue().toString();
+							String[] columnArr = uniqueColumnsRaw.split(",");
+							for (String colName : columnArr) {
+								if(!StringUtil.isBlank(colName)) {
+									mOrmTable.pkColumnNames.add(colName);
+								}
+							}
+						}
+						else if(UNIQUE_CONSTANT_KEY_CLAUSE.equals(name)) {
+							mOrmTable.conflictClause = vp.getValue().toString();
+						}
+					}
+				}
+			}
 		}
-		
 		
 		List<ClassOrInterfaceType>  extendsList = n.getExtends();
 		for(ClassOrInterfaceType type : extendsList) {
@@ -174,20 +214,37 @@ public class MethodVisitor extends VoidVisitorAdapter {
 				prop.columnName = id.getName();
 				prop.type = id.getClass();
 				
-				// notColumn
+				
+				
+				
+				// annotation unique 唯一键
+				if ("unique".equals(annotation) && mOrmTable.pkColumnNames.contains(prop.columnName)) {
+					prop.primaryKey = true;	
+				} else {
+					prop.primaryKey = false;
+				}
+				
+				// annotattion defaultzero
+				if ("defaultzero".equals(annotation)) {
+					prop.defaultValue = "0";
+				}
+				
+				// annotation notColumn 非列
 				if ("notColumn".equals(annotation)) {
 					prop.ordinal = mNotColumnOridnal;
 					mNotColumnOridnal++;
-				}
-				else {
+					mOrmTable.notColumns.add(prop);
+				} else {
 					prop.ordinal = mColumnOrdinal;
 					mColumnOrdinal++;
+					mOrmTable.columns.add(prop);
+				}
+				
+				if (prop.primaryKey) {
+					mOrmTable.pkColumns.add(prop);
 				}
 			}
-			
-			// not column
 		}
-//		System.out.println("-----FieldDeclaration-----end");
 	}
 	
 	// >-----------------------------------------------------------------
@@ -198,7 +255,6 @@ public class MethodVisitor extends VoidVisitorAdapter {
 	public void visit(AnnotationDeclaration n, Object arg) {
 		super.visit(n, arg);
 	}
-
 	@Override
 	public void visit(AnnotationMemberDeclaration n, Object arg) {
 		super.visit(n, arg);
